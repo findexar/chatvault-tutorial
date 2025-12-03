@@ -9,6 +9,13 @@ Prerequisites:
 This document defines **generic prompts** for building an Apps SDK + MCP + widget project.  
 Project-specific behavior (tools, data model, widget UI) should be defined in that project's own prompt file as its **Prompt4** (or similar).
 
+## Engineering Principles (for all prompts)
+
+- **Verify, don’t guess**: When behavior depends on external systems (Apps SDK, Skybridge, ChatGPT host, MCP spec), consult the latest docs or run a minimal experiment before changing code. Do not rely solely on heuristics or assumptions.
+- **Prefer build-time solutions over runtime surgery**: When you need a different bundle shape (modules vs. classic scripts, different entrypoints, etc.), favor changing the bundler/build config (for example, Vite/Rollup/Webpack) over ad‑hoc string manipulation of compiled JS/HTML. If you must transform compiled output, keep it small, explicit, and tested.
+- **Test in both isolated and host contexts**: Validate widgets both in a standalone browser page (pure UI/runtime behavior) and in the full Apps SDK + MCP + Skybridge context (protocol, tools, resources). Localize bugs to one context before changing both.
+- **Design for graceful degradation and bounded behavior**: Widgets and servers should detect missing capabilities (for example, `window.openai`, MCP endpoints) and fail in a controlled, observable way (clear error, no infinite retries or unbounded logging), rather than hanging or degrading the host UI.
+
 project name - `${PROJECT_NAME}`
 
 Prompt0: Clone SDK
@@ -87,7 +94,7 @@ Requirements (non‑negotiable):
 - Expose a single `POST /mcp` endpoint that:
   - Uses the `@modelcontextprotocol/sdk` `Server` instance internally for all MCP behavior
   - Speaks JSON-RPC over HTTP using streaming responses (chunked JSON lines), NOT SSE
-  - Manually dispatches JSON-RPC requests to `server.request()` and formats responses
+  - Manually dispatches JSON-RPC requests and formats responses
   - For `initialize` requests: manually construct response with `capabilities: { resources: {}, tools: {} }` (both keys must be present), use `Content-Type: application/json`, and set `mcp-session-id` header
 - Keep session management pattern similar to the SDK example
 - Keep everything else from the SDK example structure (file organization, build process, etc.)
@@ -143,3 +150,5 @@ Notes:
   - Validate that the skybridge widget can load and render the project’s browse view using the MCP resource and tools defined in Prompt4.
   - Emit enough logging and assertions that we can prove coverage of the live MCP server implementation (including both the HTTP layer and the JSON-RPC handlers).
   - Treat the **OpenAI MCP / Apps SDK examples as the spec for behavior and shapes**: tests should assert that JSON-RPC envelopes, method names, and tool/resource/result shapes remain compatible with the current examples, and treat any drift from those examples as a failing test to fix rather than an acceptable change.
+  - Include a **module-usage test for the widget bundle**: write a Jest/e2e test that calls the live MCP server’s `/mcp` endpoint to perform a `resources/read` on the widget template URI (for example, `ui://widget/chat-vault.html`), and assert that the returned HTML text contains a `<script type="module">` tag (or other host-supported construct) for loading the widget bundle. This ensures the inlined widget bundle preserves whatever module semantics the host supports (for example, ES modules in Skybridge) and can safely use modern tooling (for example, Vite + React) inside the ChatGPT widget iframe.
+  - After Prompt4 and Prompt5 are implemented, extend these tests (or add new ones) so they also cover the concrete widget behavior and failure modes described in Prompt5 (isolated widget on port 4444), in addition to the protocol-level assertions in this prompt.
