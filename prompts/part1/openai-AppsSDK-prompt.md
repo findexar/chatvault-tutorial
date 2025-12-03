@@ -90,14 +90,28 @@ Requirements (non‑negotiable):
 
 3. Transport: Replace SSE with HTTP streaming
 
-- Replace the SSE transport (`SSEServerTransport`, `GET /mcp`, `POST /mcp/messages`) with HTTP streaming
+- Replace the SSE transport (`SSEServerTransport`, `GET /mcp`, `POST /mcp/messages`) with HTTP streaming (using standard HTTP POST requests, not SSE)
 - Expose a single `POST /mcp` endpoint that:
   - Uses the `@modelcontextprotocol/sdk` `Server` instance internally for all MCP behavior
-  - Speaks JSON-RPC over HTTP using streaming responses (chunked JSON lines), NOT SSE
-  - Manually dispatches JSON-RPC requests and formats responses
-  - For `initialize` requests: manually construct response with `capabilities: { resources: {}, tools: {} }` (both keys must be present), use `Content-Type: application/json`, and set `mcp-session-id` header
+  - Handles JSON-RPC over HTTP: ChatGPT sends **one JSON-RPC request per HTTP POST** (not batches or NDJSON)
+  - For **ALL responses** (including `initialize`, `tools/list`, `tools/call`, `resources/list`, `resources/read`, and notifications):
+    - Set `Content-Type: application/json` header (NOT `application/x-ndjson`)
+    - Send a single JSON-RPC response object and immediately end the HTTP response
+    - **DO NOT use** NDJSON format or batch multiple responses
+  - Manually dispatch JSON-RPC requests and format responses
+  - For `initialize` requests: manually construct response with `capabilities: { resources: {}, tools: {} }` (both keys must be present) and set `mcp-session-id` header in the response
+  - For notifications (requests without an `id` field, like `notifications/initialized`): respond with HTTP `204 No Content` and set `mcp-session-id` header
+  - For all other requests: parse the JSON-RPC request body as a single JSON object (not NDJSON), dispatch to the appropriate handler, write the JSON-RPC response, and end the HTTP connection
 - Keep session management pattern similar to the SDK example
 - Keep everything else from the SDK example structure (file organization, build process, etc.)
+
+**Implementation notes:**
+
+- Parse request body as: `const requestData = JSON.parse(body)` (single JSON object, not splitting by newlines for NDJSON)
+- Set response headers once at the start: `res.setHeader("Content-Type", "application/json")` (for ALL responses)
+- Write response and end immediately: `writeJsonRpcResponse(res, id, result, error); res.end()`
+- Each HTTP POST request gets exactly one response that completes before the next request
+- "HTTP streaming" here refers to using standard HTTP POST (vs SSE), not NDJSON/batched responses
 
 3a. Asset inlining for single-port deployment
 
