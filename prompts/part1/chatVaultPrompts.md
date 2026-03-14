@@ -1,6 +1,6 @@
 Title: ChatVault MCP App – Vercel / MCP PROMPTS
 
-project name - chat-vault-part-mcp-app
+project name - chat-vault-part1
 
 This project uses the **generic Vercel MCP App prompts** defined in:
 
@@ -18,7 +18,7 @@ This file defines the **ChatVault-specific MCP App behavior** starting from Prom
 
 ## Engineering Principles (ChatVault-specific)
 
-- **Reuse Part 1 and Part 2 behavior, not their plumbing**: The Part MCP App should feel like a natural extension of Part 1 (widget) and Part 2 (backend), implemented with the MCP Apps SDK (ext-apps) as in the generic Part MCP App prompts. Use `registerAppTool` and `registerAppResource` for correct tool/resource shape and widget iframe behavior.
+- **Reuse old-depricated-part 1 and Part 2 behavior, not their plumbing**: The new Part1 MCP App is a port to MCP App of an older ChatGPT App Part 1 (widget) and Part 2 (backend), implemented with the MCP Apps SDK (ext-apps) as in the generic Part MCP App prompts. Use `registerAppTool` and `registerAppResource` for correct tool/resource shape and widget iframe behavior.
 - **Simple, explicit tools**: Treat `browseMySavedChats` as an MCP App tool whose job is to open the ChatVault widget and hand it enough context to know which user/team to show. Use a flat input schema (raw Zod shape: optional `shortAnonId`, `portalLink`, `loginLink`, `isAnon`) and a handler that returns text plus `_meta.ui.resourceUri`.
 - **Vibe-first UX**: The widget is for humans, not test harnesses. Prioritize fast feedback (loading states, clear empty/error messages, obvious "open portal" actions) over protocol cleverness.
 - **Traceability across layers**: From the client down to the MCP server and widget, you should be able to trace a single tool call via logs and UI states. When in doubt, add a small, well-scoped log with a unique tag and keep the log volume bounded.
