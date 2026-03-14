@@ -2,7 +2,7 @@
 
 This repository is the starter project for the video series:
 
-> **“Build a SaaS ChatGPT App from Scratch with Vibe Engineering, OpenAI Apps SDK, and No‑Code Tools”**
+> **“Build a B2C SaaS Agentic App from Scratch with Vibe Engineering, OpenAI MCP Apps SDK, and No‑Code Tools”**
 
 Use it to follow along with the tutorials or as a jumpstart template for your own SaaS ChatGPT app.
 
@@ -12,13 +12,13 @@ Use it to follow along with the tutorials or as a jumpstart template for your ow
 
 Across the series, we’ll go from **zero to a deployable SaaS ChatGPT app**, including:
 
-- **A ChatVault widget app** you can embed in ChatGPT. ChatVault is a tutorial app that will be able to save and access chats similar to browser history.
-- **Multiple backend options for ChatVault** (code + no‑code) for your ChatGPT-style app:
+- **A ChatVault widget MCP App** you can embed in ChatGPT, Claude or many other AI Hosts. ChatVault is a tutorial app that will be able to save and access chats similar to browser history.
+- **Multiple backend options for ChatVault** (code + no‑code) for your agentic SaaS app:
   - Vibe coding (e.g., Node/TypeScript)
   - n8n
   - Make
   - Zapier + Agent Kit
-- **A SaaS layer** powered by **Findexar** (SaaS‑in‑a‑bottle).
+- **A SaaS layer** powered by **Agentsyx** (SaaS‑in‑a‑bottle).
 - **Production deployment** using GitHub, CI/CD, and Vercel.
 
 You can adapt the stack and tools as you like—the repo is meant as a starting point, not a constraint.
@@ -29,9 +29,9 @@ You can adapt the stack and tools as you like—the repo is meant as a starting 
 
 ### Part 1 — ChatVault Widget (Vibe Coding in Cursor)
 
-We build a **ChatVault ChatGPT app widget** from scratch using vibe coding in Cursor:
+We build a **ChatVault MCP App widget** from scratch using vibe coding in Cursor:
 
-- Set up a minimal frontend / MCP-UI (skybridge) project using OpenAI Apps SDK.
+- Set up a minimal frontend / MCP-UI (appbridge) project using OpenAI Apps SDK.
 - Create an embeddable widget UI.
 - Stub backend endpoints.
 - Debug in ChatGPT.
@@ -40,28 +40,24 @@ Supporting prompts for Part 1 live in `prompts/part1`.
 
 ### Part 2 — ChatVault Backend Options
 
-We explore several ways to implement the backend as a separate MCP server:
+We implement backend as a separate MCP server.
 
-- Vibe‑coded backend (Node/TypeScript)
-- n8n
-- Make
-- Zapier + Agent Kit
 
-Each path covers how to:
+We cover how to:
 
 - Integrate with Neon PostgreSQL Vector DB.
 - Implement MCP tools.
 - Debug and provide test coverage.
 
-### Part 3 — Putting the Widget and the Backend MCP together and adding a SaaS Layer with Findexar
+### Part 3 — Putting the Widget and the Backend MCP together and adding a SaaS Layer with Agentsyx
 
-We combine two MCP downstream servers while injecting SaaS functionality into a single MCP-UI (skybridge) server.
+We combine two MCP downstream servers while injecting SaaS functionality into a single MCP-UI (appbridge) server.
 
-We turn the app into a SaaS product using **[Findexar](https://findexar.com)**:
+We turn the app into a SaaS product using **[Agentsyx Creator](https://creator.agentsyx.com)**:
 
-- Learn how to set up the creator org in Findexar, configure Stripe and subscription plans, and wire the connectors.
-- Plug into Findexar’s **SaaS‑in‑a‑bottle** capabilities instead of building SaaS infrastructure from scratch.
-- Focus on your product and UX while Findexar handles the SaaS backbone (accounts, plans, usage, and related operations).
+- Learn how to set up the creator org in Agentsyx Creator, configure Stripe and subscription plans, and wire the connectors.
+- Plug into Agentsyx’s **SaaS‑in‑a‑bottle** capabilities instead of building SaaS infrastructure from scratch.
+- Focus on your product and UX while Agentsyx handles the SaaS backbone (accounts, plans, usage, and related operations).
 
 ### Part 4 — Production: GitHub, CI/CD, Vercel
 
