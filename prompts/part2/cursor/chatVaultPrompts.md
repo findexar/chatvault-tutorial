@@ -1,4 +1,4 @@
-Title: ChatVault Backend – Apps SDK / MCP Vibe Coding PROMPTS
+Title: ChatVault Backend – Apps SDK / MCP Vibe Engineering PROMPTS
 
 project name - chat-vault-part2
 
