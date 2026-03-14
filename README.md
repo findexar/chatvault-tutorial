@@ -1,4 +1,4 @@
-# Build a SaaS ChatGPT App from Scratch with Vibe Engineering using Cursor Code Agent and No‑Code Tools
+# Build a SaaS Agentic App (MCP App) from Scratch with Vibe Engineering using Cursor Code Agent and No‑Code Tools
 
 This repository is the starter project for the video series:
 
