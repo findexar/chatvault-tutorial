@@ -3,14 +3,14 @@ Title: Generic Vercel MCP App + Widget PROMPTS (MCP Apps SDK)
 Prerequisites:
 
 - git
-- Node.js 24+
+- Node.js 22+
 - Vercel account (for deployment)
 - ngrok (for local tunneling if you want to test from ChatGPT/Claude against localhost)
 - Cursor (these prompts are tuned for running inside the Cursor editor)
 - ChatGPT Plus membership
 
 This document defines **generic prompts** for building an MCP App that exposes a widget via the **MCP Apps SDK** (`@modelcontextprotocol/ext-apps`), and deploying it to **Vercel** as a serverless function.  
-Project-specific behavior (tools, data model, widget UI) should be defined in that project's own prompt file as its **Prompt4/Prompt5+**.
+Project-specific behavior (tools, data model, widget UI) should be defined in that project's own prompt file as its **Prompt7+**.
 
 ## Engineering Principles (for all prompts)
 
@@ -24,10 +24,27 @@ project name - `${PROJECT_NAME}`
 
 ---
 
-Prompt0: Scaffold Vercel MCP App project
+Prompt1:
 
-- Start from an existing MCP Apps example or from a minimal Node/Vite setup.
-- Create a new project directory for `${PROJECT_NAME}` (for example, `chat-vault-part-mcp-app`) alongside any existing parts (Part 1/Part 2/Part 3).
+The project chatvault-tutorial is cloned from a public repo.
+ Detach from GitHub repository
+
+- Remove the `.git` directory to detach from the original repository
+- This makes it a standalone project (a new repository will be created in a later video)
+- After detaching, initialize a new Git repository for `${PROJECT_NAME}` and publish it to your own GitHub account:
+  - `git init`
+  - `git add .`
+  - `git commit -m "Initial commit for ${PROJECT_NAME} based on OpenAI Apps SDK examples"`
+  - Create an empty repository on GitHub (for example, `https://github.com/<USER>/${PROJECT_NAME}`)
+  - `git remote add origin git@github.com:<USER>/${PROJECT_NAME}.git` (or the HTTPS URL if you prefer)
+  - `git push -u origin main` (or `master`, depending on your default branch)
+
+
+
+Prompt2: Scaffold Vercel MCP App project
+
+- Start from a minimal Node/Vite setup.
+- Create a new project directory for `${PROJECT_NAME}` (for example, `chatvault-part1`) under chatvault-tutorial).
 - Ensure the project structure supports:
   - A **Node entrypoint** that can be run locally (for dev and tests).
   - A **Vercel serverless function** entrypoint for `/mcp` (for production).
@@ -38,15 +55,15 @@ Prompt0: Scaffold Vercel MCP App project
     - `dev` – local MCP server.
     - `build` – compile **single-file** widget to `assets/mcp-app.html`.
     - `vercel-build` – Vercel build hook that runs `build`.
-
+use pnpm
 ---
 
-Prompt1: Implement HTTP JSON-RPC MCP server for Vercel
+Prompt3: Implement HTTP JSON-RPC MCP server for Vercel
 
 Goal: Create an MCP server that runs both:
 
 - As a local Node process (e.g. Express or Node HTTP server), and
-- As a Vercel serverless function mounted at `/mcp` or `/api/mcp`.
+- As a Vercel serverless function mounted at `/mcp`.
 
 Non‑negotiables:
 
@@ -63,7 +80,7 @@ Non‑negotiables:
 
 ---
 
-Prompt2: Build the MCP App widget as a single-file HTML bundle
+Prompt4: Build the MCP App widget as a single-file HTML bundle
 
 Goal: Produce **one self-contained HTML file** (e.g. `assets/mcp-app.html`) that contains the full widget UI (HTML + inlined JS + inlined CSS) for the MCP App. The server will read and serve this file as-is; there is **no** server-side inlining.
 
@@ -86,7 +103,7 @@ Requirements:
 
 ---
 
-Prompt3: Wire MCP App UI resources and browse tool (ext-apps)
+Prompt5: Wire MCP App UI resources and browse tool (ext-apps)
 
 Goal: Expose the widget and browse tool using **ext-apps** helpers so the client gets correct `_meta` and can render the iframe (including CSP where needed).
 
@@ -110,7 +127,7 @@ Non‑negotiables:
 
 ---
 
-Prompt4: Deployment, logging, and end-to-end verification
+Prompt6: Deployment, logging, and end-to-end verification
 
 Goal: Deploy the MCP App to Vercel and verify that ChatGPT/Claude can call the server, list/read the widget resource, and open the widget when the browse tool is invoked.
 
@@ -121,4 +138,4 @@ Requirements:
   - Ensure the **build** runs the full widget build (e.g. `pnpm run build` or `vercel-build`) so `assets/mcp-app.html` is the **real single-file bundle**, not a stub.
   - Use **`includeFiles: "assets/**"`** (or equivalent) for the serverless function so the deployed handler can read `assets/mcp-app.html` from disk (e.g. `process.cwd()/assets/mcp-app.html`).
 - **Logging**: Log incoming JSON-RPC (method, id, params keys) and outgoing responses (result vs error, byte length). Log resource read success and file size (expect hundreds of KB for the real bundle).
-- **End-to-end**: A Node script or Jest test that calls the deployed `/mcp` with `initialize`, `tools/list`, `resources/list`, `resources/read`, and `tools/call` for the browse tool; assert response shapes and that the widget HTML is the single-file bundle (large size, inlined script), not a stub.
+- **End-to-end**: A Jest test that calls  `/mcp` with `initialize`, `tools/list`, `resources/list`, `resources/read`, and `tools/call` for the browse tool; assert response shapes and that the widget HTML is the single-file bundle (large size, inlined script), not a stub.
