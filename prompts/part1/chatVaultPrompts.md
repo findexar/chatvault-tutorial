@@ -1,27 +1,27 @@
-Title: ChatVault MCP App – Vercel / MCP PROMPTS
+Title: ChatVault MCP App
 
 project name - chat-vault-part1
 
-This project uses the **generic Vercel MCP App prompts** defined in:
+This project uses the **generic MCP App prompts** defined in:
 
 - `prompts/part-mcp-app/common.md`
 
 Use that file for:
 
 - **Prompt1**: Detach from GitHub repository
-- **Prompt2**: Scaffold Vercel MCP App project
-- **Prompt3**: Implement HTTP JSON-RPC MCP server for Vercel (with ext-apps)
+- **Prompt2**: Scaffold  MCP App project
+- **Prompt3**: Implement HTTP JSON-RPC MCP server with ext-apps
 - **Prompt4**: Build the MCP App widget as a single-file HTML bundle (Vite + React + Tailwind + vite-plugin-singlefile)
-- **Prompt5**: Wire MCP App UI resources and browse tool (registerAppTool, registerAppResource)
+- **Prompt5**: Wire MCP App UI resources and a test tool (registerAppTool, registerAppResource)
 - **Prompt6**: Deployment, logging, and end-to-end verification
 
-This file defines the **ChatVault-specific MCP App behavior** starting from Prompt5.
+This file defines the **ChatVault-specific MCP App behavior** starting from Prompt7.
 
 ## Engineering Principles (ChatVault-specific)
 
-- **Reuse old-depricated-part 1 and Part 2 behavior, not their plumbing**: The new Part1 MCP App is a port to MCP App of an older ChatGPT App Part 1 (widget), Part 2 (backend) is an MCP server, stays unchanged, implemented with the MCP Apps SDK (ext-apps) as in the generic Part MCP App prompts. Use `registerAppTool` and `registerAppResource` for correct tool/resource shape and widget iframe behavior.
+- **Reuse old-depricated-part 1 behavior, not their plumbing**: The new Part1 MCP App is a port to MCP App of an older ChatGPT App Part 1 (widget), Part 2 (backend) is an MCP server, stays unchanged, implemented with the MCP Apps SDK (ext-apps) as in the generic Part MCP App prompts. Use `registerAppTool` and `registerAppResource` for correct tool/resource shape and widget iframe behavior.
 - **Simple, explicit tools**: Treat `browseMySavedChats` as an MCP App tool whose job is to open the ChatVault widget and hand it enough context to know which user/team to show. Use a flat input schema (raw Zod shape: optional `shortAnonId`, `portalLink`, `loginLink`, `isAnon`) and a handler that returns text plus `_meta.ui.resourceUri`.
-- **Vibe-first UX**: The widget is for humans, not test harnesses. Prioritize fast feedback (loading states, clear empty/error messages, obvious "open portal" actions) over protocol cleverness.
+- **Responsive UX**: The widget is for humans, not test harnesses. Prioritize fast feedback (loading states, clear empty/error messages, obvious "open portal" actions) over protocol cleverness.
 - **Traceability across layers**: From the client down to the MCP server and widget, you should be able to trace a single tool call via logs and UI states. When in doubt, add a small, well-scoped log with a unique tag and keep the log volume bounded.
 
 ---
@@ -34,13 +34,13 @@ Requirements:
 
 - Tool contract:
   - `name: "browseMySavedChats"`.
-  - `inputSchema`: use a **raw Zod shape** (plain object of optional fields), e.g. `shortAnonId`, `portalLink`, `loginLink`, `isAnon`, as in the generic Part MCP App prompt. Avoid `z.object({...}).passthrough()` for ext-apps type compatibility.
+  - `inputSchema`: use a **raw Zod shape** (plain object of optional fields), e.g. `shortAnonId`, `portalLink`, `loginLink`, `isAnon`, as in the old-depricated-part1 prompt. Avoid `z.object({...}).passthrough()` for ext-apps type compatibility.
   - Treat this as a routing tool that opens the widget; keep validation minimal.
 - Expected inputs:
-  - A short anon/user ID (for example, `shortAnonId` or equivalent) to identify the viewer.
-  - A `portalLink` URL where the full ChatVault web app lives.
-  - A `loginLink` URL to sign in or upgrade if needed.
-  - Booleans for `isAnon` / `isAnonymousSubscription` as needed.
+  - A short anon/user ID (for example, `shortAnonId` or equivalent) to identify the viewer inside ChatGPT.
+  - A `portalLink` URL where the full ChatVault web app lives. Will be injected in the future (part3).
+  - A `loginLink` URL to sign in or upgrade if needed. Will be injected in the future.
+  - Booleans for `isAnon` / `isAnonymousSubscription` as needed. Will be injected in the future. 
 - Behavior:
   - On `tools/call` for `browseMySavedChats`, the server should:
     - Log the incoming arguments (keys only; avoid dumping secrets).
@@ -51,14 +51,14 @@ Requirements:
 
 ---
 
-Prompt8: ChatVault MCP App widget behavior (hosted on Vercel)
+Prompt8: ChatVault MCP App widget behavior
 
 Goal: Implement the Part MCP App widget UI so it can be used as an MCP App iframe inside ChatGPT/Claude and as a regular page (for local testing).
 
 Requirements:
 
 - Visual behavior:
-  - Reuse the high-level layout from Part 1 (a chat history browser), but simplify wherever it makes sense for "portal-style" usage.
+  - Reuse the high-level layout from old-depricated-part1 (a chat history browser), but simplify wherever it makes sense for "portal-style" usage.
   - Show a **header** with the user/team name (if available) and a clear title like "ChatVault – Saved Chats".
   - Provide obvious actions:
     - "Open full app" button linking to `portalLink` (in a new tab) when available.
