@@ -8,11 +8,12 @@ This project uses the **generic Vercel MCP App prompts** defined in:
 
 Use that file for:
 
-- **Prompt0**: Scaffold Vercel MCP App project
-- **Prompt1**: Implement HTTP JSON-RPC MCP server for Vercel (with ext-apps)
-- **Prompt2**: Build the MCP App widget as a single-file HTML bundle (Vite + React + Tailwind + vite-plugin-singlefile)
-- **Prompt3**: Wire MCP App UI resources and browse tool (registerAppTool, registerAppResource)
-- **Prompt4**: Deployment, logging, and end-to-end verification
+- **Prompt1**: Detach from GitHub repository
+- **Prompt2**: Scaffold Vercel MCP App project
+- **Prompt3**: Implement HTTP JSON-RPC MCP server for Vercel (with ext-apps)
+- **Prompt4**: Build the MCP App widget as a single-file HTML bundle (Vite + React + Tailwind + vite-plugin-singlefile)
+- **Prompt5**: Wire MCP App UI resources and browse tool (registerAppTool, registerAppResource)
+- **Prompt6**: Deployment, logging, and end-to-end verification
 
 This file defines the **ChatVault-specific MCP App behavior** starting from Prompt5.
 
