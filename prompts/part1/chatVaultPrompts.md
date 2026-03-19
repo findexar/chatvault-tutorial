@@ -26,7 +26,7 @@ This file defines the **ChatVault-specific MCP App behavior** starting from Prom
 
 ---
 
-Prompt5: Define ChatVault MCP App inputs and wiring for `browseMySavedChats`
+Prompt7: Define ChatVault MCP App inputs and wiring for `browseMySavedChats`
 
 Goal: Specify how the Part MCP App receives context from the client (e.g. ChatGPT) and how that flows into the widget.
 
@@ -51,7 +51,7 @@ Requirements:
 
 ---
 
-Prompt6: ChatVault MCP App widget behavior (hosted on Vercel)
+Prompt8: ChatVault MCP App widget behavior (hosted on Vercel)
 
 Goal: Implement the Part MCP App widget UI so it can be used as an MCP App iframe inside ChatGPT/Claude and as a regular page (for local testing).
 
@@ -77,7 +77,7 @@ Requirements:
 
 ---
 
-Prompt7: End-to-end validation from ChatGPT/Claude
+Prompt9: End-to-end validation from ChatGPT/Claude
 
 Goal: Prove that the full chain works:
 
@@ -102,7 +102,7 @@ The outcome should be a **boring, predictable MCP App**: it uses the MCP Apps SD
 
 ---
 
-Prompt8 (optional): Display mode and layout
+Prompt10 (optional): Display mode and layout
 
 Goal: Support display mode (pip / inline / fullscreen) and safe area so the widget adapts to the client's layout.
 
