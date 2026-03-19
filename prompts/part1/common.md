@@ -3,7 +3,7 @@ Title: Generic Vercel MCP App + Widget PROMPTS (MCP Apps SDK)
 Prerequisites:
 
 - git
-- Node.js 22+
+- Node.js latest LTS
 - Vercel account (for deployment)
 - ngrok (for local tunneling if you want to test from ChatGPT/Claude against localhost)
 - Cursor (these prompts are tuned for running inside the Cursor editor)
@@ -15,7 +15,7 @@ Project-specific behavior (tools, data model, widget UI) should be defined in th
 ## Engineering Principles (for all prompts)
 
 - **Use the MCP Apps SDK (ext-apps) for App UI**: Use `@modelcontextprotocol/ext-apps` with `registerAppTool` and `registerAppResource` to expose the browse tool and widget resource. This gives correct tool/resource shape and `_meta` (e.g. `ui.resourceUri`, OpenAI CSP hints) so MCP App clients (e.g. ChatGPT, Claude) can render the widget iframe correctly.
-- **Single-file widget at build time**: The widget is built as **one HTML file** (e.g. `assets/mcp-app.html`) with JS and CSS **inlined** by Vite + `vite-plugin-singlefile`. The server **reads and serves that file as-is**; there is no server-side inlining (unlike Part 1's `localizeWidgetAssets`).
+- **Single-file widget at build time**: The widget is built as **one HTML file** (e.g. `assets/mcp-app.html`) with JS and CSS **inlined** by Vite + `vite-plugin-singlefile`. The server **reads and serves that file as-is**; there is no server-side inlining (unlike Part 1's `localizeWidgetAssets`). The mcp server will return this bundle in resource/read
 - **Verify, don't guess**: When behavior depends on external systems (MCP Apps spec, Vercel, ChatGPT/Claude), consult docs or run a minimal experiment. Don't ship speculative workarounds unless they're clearly logged and easy to revert.
 - **Design for observability**: Log each JSON-RPC request/response on `/mcp` (method, id, params summary, response size). Make widget behavior observable via an in-widget debug log panel.
 - **Graceful degradation**: The server and widget should detect missing capabilities (wrong API key, missing client APIs, resource 404) and fail in a bounded, understandable way—clear error text, no infinite retries or silent hangs.
@@ -58,7 +58,7 @@ Prompt2: Scaffold Vercel MCP App project
 use pnpm
 ---
 
-Prompt3: Implement HTTP JSON-RPC MCP server for Vercel
+Prompt3: Implement HTTP JSON-RPC MCP server 
 
 Goal: Create an MCP server that runs both:
 
@@ -69,20 +69,20 @@ Non‑negotiables:
 
 - Use `@modelcontextprotocol/sdk` to create an MCP `Server` (or `McpServer`).
 - Use **`@modelcontextprotocol/ext-apps`** to register the App UI:
-  - `registerAppTool(server, toolName, config, handler)` for the browse tool.
+  - `registerAppTool(server, toolName, config, handler)` for the test tool. Should return some text to validate the functionality
   - `registerAppResource(server, name, uri, config, readCallback)` for the widget resource.
 - HTTP surface (both local and Vercel) must:
   - Accept **one JSON-RPC request per HTTP POST**.
   - Parse the body as a single JSON object (no NDJSON/batching).
   - Always respond with a single JSON-RPC response object and then end the HTTP response.
   - Use `Content-Type: application/json` for all JSON-RPC responses.
-- The server can use `StreamableHTTPServerTransport` or a simple "read body → JSON.parse → dispatch → write JSON-RPC response" pattern; ensure it works with the ext-apps-registered handlers.
+- The server should use `StreamableHTTPServerTransport`; ensure it works with the ext-apps-registered handlers.
 
 ---
 
 Prompt4: Build the MCP App widget as a single-file HTML bundle
 
-Goal: Produce **one self-contained HTML file** (e.g. `assets/mcp-app.html`) that contains the full widget UI (HTML + inlined JS + inlined CSS) for the MCP App. The server will read and serve this file as-is; there is **no** server-side inlining.
+Goal: Produce **one self-contained HTML file** (e.g. `assets/mcp-app.html`) that contains the full widget UI (HTML + inlined JS + inlined CSS) for the MCP App. The mcp server (resources/read) will read and serve this file as-is; there is **no** server-side inlining.
 
 Requirements:
 
@@ -134,8 +134,10 @@ Goal: Deploy the MCP App to Vercel and verify that ChatGPT/Claude can call the s
 Requirements:
 
 - **Vercel deployment**:
-  - Configure `vercel.json` so that POST `/mcp` (or `/api/mcp`) routes to your serverless handler.
+  - Configure `vercel.json` so that POST `/mcp` routes to your serverless handler (`api/mcp`).
   - Ensure the **build** runs the full widget build (e.g. `pnpm run build` or `vercel-build`) so `assets/mcp-app.html` is the **real single-file bundle**, not a stub.
-  - Use **`includeFiles: "assets/**"`** (or equivalent) for the serverless function so the deployed handler can read `assets/mcp-app.html` from disk (e.g. `process.cwd()/assets/mcp-app.html`).
+  - Use **`includeFiles: "assets/**"`** (or equivalent) for the serverless function (resources/read) so the deployed handler can read `assets/mcp-app.html` from disk (e.g. `process.cwd()/assets/mcp-app.html`).
 - **Logging**: Log incoming JSON-RPC (method, id, params keys) and outgoing responses (result vs error, byte length). Log resource read success and file size (expect hundreds of KB for the real bundle).
 - **End-to-end**: A Jest test that calls  `/mcp` with `initialize`, `tools/list`, `resources/list`, `resources/read`, and `tools/call` for the browse tool; assert response shapes and that the widget HTML is the single-file bundle (large size, inlined script), not a stub.
+- **Make it easy to develop Widget React component locally with pnpm dev**
+- **Work with user to verify local development and step-by-step Vercel deployment from github** Test with ChatGPT developer mode, test tool should return some test output.
