@@ -78,6 +78,8 @@ Exercise basic UI interactions (header rendering, empty-history state, expand/co
 Diagnose widget-only issues (for example, runtime errors, host-API absence, or layout/styling problems) independently of MCP transport and ChatGPT’s hosting behavior.
 Verify that the widget handles missing or delayed host APIs (for example, window.openai) in a bounded, observable way (clear error or retry message, no infinite retries or unbounded logging), and that purely local interactions (such as debug panel toggling) remain responsive.
 
+---
+
 Prompt9: ChatVault MCP App widget behavior
 
 Goal: Implement the Part MCP App widget UI so it can be used as an MCP App iframe inside ChatGPT/Claude and as a regular page (for local testing).
