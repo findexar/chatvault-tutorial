@@ -28,20 +28,21 @@ This file defines the **ChatVault-specific MCP App behavior** starting from Prom
 prompt7 - wire MCP App server for Chat Vault
  Define ChatVault MCP App inputs and wiring for `browseMySavedChats`
 
-This is the MCP App server we want to build: actions: saveChat, loadChats, searchChat and browseMySavedChats.
+This is the MCP App server we want to build: actions: saveChat, loadMyChats, searchMyChats and browseMySavedChats.
 
 A Chat is { title, timestamp, turns[{ prompt, response }] }.
-browseSavedChats returns the MCP App widget we are creating in this project.
-loadChats is a paged fetch, hardcoded with example data for this project.
-saveChat and searchChat are dummy functions for this project.
-The widget is like a Chrome history browser, internally calling loadChats via skybridge (window.openai.toolCall). It is a list of chats.When user clicks on a chat, it opens up, showing all the saved prompts and responses. The prompts and responses are truncated with ellipses by default, but when clicked, they show in full. Each has copy to clipboard button which changes to green checkmark for 5 secs when clicked.
-loadChats should have userId as a parameter, but we are not setting it inside the widget.
-at the bottom of the widget, add collapsible debug panel. Add logging to widget and show in the debug panel. Load widget initi and calling loadChats thoroughly.
+browseMySavedChats returns the MCP App widget we are creating in this project (replacing a test tool from the common prompts).
+loadMyChats is a paged fetch, hardcoded with example data for this project.
+saveChat and searchMyChats are dummy functions for this project.
+The widget is like a Chrome history browser, internally calling loadMyChats via appbridge. It is a list of chats.When user clicks on a chat, it opens up, showing all the saved prompts and responses. The prompts and responses are truncated with ellipses by default, but when clicked, they show in full. Each has copy to clipboard button which changes to green checkmark for 5 secs when clicked.
+loadMyChats should have userId as a parameter, but we are not setting it inside the widget.
+at the bottom of the widget, add collapsible debug panel. Add logging to widget and show in the debug panel. Load widget initi and calling loadMyChats thoroughly.
 Note: The widget must detect and adapt to dark mode (use data-theme attribute, CSS variables, and dark: Tailwind classes).
 
 
 Goal: Specify how the Part MCP App receives context from the client (e.g. ChatGPT) and how that flows into the widget.
 
+In the local dev mode, the widget should work without the appbridge present.
 
 browseMySavedChats:
 Requirements:
@@ -64,25 +65,10 @@ Requirements:
 - The focus here is on **shape clarity**: the tool should be trivially understandable by "vibe engineers" looking only at the JSON schema and a couple of log lines.
 
 ---
-Prompt8 (Isolated ChatVault widget test on port 4444):
 
-Set up a simple static server to serve the built widget assets from the ChatVault project root:
-From the tutorial root:
-cd /home/nick/chatvault-tutorial/chat-vault-part1
-npx serve assets -l 4444
-Verify that the ChatVault widget can be loaded in isolation in a regular browser (outside ChatGPT) by opening:
-http://localhost:4444/chat-vault.html
-Use this isolated page to:
-Confirm that the widget HTML, JS, and CSS are valid and that React mounts successfully.
-Exercise basic UI interactions (header rendering, empty-history state, expand/collapse of turns, debug panel toggle) without requiring window.openai.callTool.
-Diagnose widget-only issues (for example, runtime errors, host-API absence, or layout/styling problems) independently of MCP transport and ChatGPT’s hosting behavior.
-Verify that the widget handles missing or delayed host APIs (for example, window.openai) in a bounded, observable way (clear error or retry message, no infinite retries or unbounded logging), and that purely local interactions (such as debug panel toggling) remain responsive.
+Prompt8: ChatVault MCP App widget behavior
 
----
-
-Prompt9: ChatVault MCP App widget behavior
-
-Goal: Implement the Part MCP App widget UI so it can be used as an MCP App iframe inside ChatGPT/Claude and as a regular page (for local testing).
+Goal: Implement the Part MCP App widget UI so it can be used as an MCP App appbridge iframe inside ChatGPT/Claude and as a regular page (for local testing).
 
 Requirements:
 
@@ -106,7 +92,7 @@ Requirements:
 
 ---
 
-Prompt10: End-to-end validation from ChatGPT/Claude
+Prompt9: End-to-end validation from ChatGPT/Claude
 
 Goal: Prove that the full chain works:
 
@@ -131,12 +117,12 @@ The outcome should be a **boring, predictable MCP App**: it uses the MCP Apps SD
 
 ---
 
-Prompt11 (optional): Display mode and layout
+Prompt10 (optional): Display mode and layout
 
 Goal: Support display mode (pip / inline / fullscreen) and safe area so the widget adapts to the client's layout.
 
 Requirements:
 
-- Use `window.openai.requestDisplayMode` (or equivalent) if the client exposes it; otherwise degrade gracefully.
+- Use `window.appbridge.requestDisplayMode` (or sdk equivalent) if the client exposes it; otherwise degrade gracefully.
 - Respect safe area insets from the client when laying out the widget (e.g. avoid notches, system UI).
 - Keep the widget usable in all display modes (pip, inline, fullscreen) with appropriate min/max height and scrolling.
