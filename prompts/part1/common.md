@@ -14,7 +14,7 @@ Project-specific behavior (tools, data model, widget UI) should be defined in th
 
 ## Engineering Principles (for all prompts)
 
-- **Use the MCP Apps SDK (ext-apps) for App UI**: Use `@modelcontextprotocol/ext-apps` with `registerAppTool` and `registerAppResource` to expose the browse tool and widget resource. This gives correct tool/resource shape and `_meta` (e.g. `ui.resourceUri`, OpenAI CSP hints) so MCP App clients (e.g. ChatGPT, Claude) can render the widget iframe correctly.
+- **Use the MCP Apps SDK (ext-apps) for App UI**: Use `@modelcontextprotocol/ext-apps` with `registerAppTool` and `registerAppResource` to expose the test tool and widget resource. This gives correct tool/resource shape and `_meta` (e.g. `ui.resourceUri`, OpenAI CSP hints) so MCP App clients (e.g. ChatGPT, Claude) can render the widget iframe correctly.
 - **Single-file widget at build time**: The widget is built as **one HTML file** (e.g. `assets/mcp-app.html`) with JS and CSS **inlined** by Vite + `vite-plugin-singlefile`. The server **reads and serves that file as-is**; there is no server-side inlining (unlike Part 1's `localizeWidgetAssets`). The mcp server will return this bundle in resource/read
 - **Verify, don't guess**: When behavior depends on external systems (MCP Apps spec, Vercel, ChatGPT/Claude), consult docs or run a minimal experiment. Don't ship speculative workarounds unless they're clearly logged and easy to revert.
 - **Design for observability**: Log each JSON-RPC request/response on `/mcp` (method, id, params summary, response size). Make widget behavior observable via an in-widget debug log panel.
@@ -103,9 +103,9 @@ Requirements:
 
 ---
 
-Prompt5: Wire MCP App UI resources and browse tool (ext-apps)
+Prompt5: Wire MCP App UI resources and test tool (ext-apps)
 
-Goal: Expose the widget and browse tool using **ext-apps** helpers so the client gets correct `_meta` and can render the iframe (including CSP where needed).
+Goal: Expose the widget and test tool using **ext-apps** helpers so the client gets correct `_meta` and can render the iframe (including CSP where needed).
 
 Non‑negotiables:
 
@@ -119,7 +119,7 @@ Non‑negotiables:
     - `openai/widgetDomain`: your widget origin (e.g. `https://your-app.vercel.app`).
     - `openai/widgetCSP`: `{ connect_domains: [...], resource_domains: [...] }` (your app and any upstream).
   - Use `RESOURCE_MIME_TYPE` from `@modelcontextprotocol/ext-apps/server`.
-- **registerAppTool(server, "browseMySavedChats", config, handler)**:
+- **registerAppTool(server, "testWidget", config, handler)**:
   - **inputSchema**: Use a **raw shape** (plain object of Zod schemas), e.g. `{ shortAnonId: z.string().optional(), portalLink: z.string().url().optional(), loginLink: z.string().url().optional(), isAnon: z.boolean().optional() }`. Do **not** use `z.object({...}).passthrough()` as the value for `inputSchema`; ext-apps expects `ZodRawShapeCompat` or `AnySchema`, and a passthrough ZodObject can cause type errors.
   - **config._meta.ui.resourceUri**: Set to the widget resource URI so the client knows which resource to open.
   - **Handler return**: Return an object with `content: [{ type: "text" as const, text: "..." }]` and `_meta: { ui: { resourceUri } }`. Use `type: "text" as const` so TypeScript infers the literal type expected by the API.
@@ -129,7 +129,7 @@ Non‑negotiables:
 
 Prompt6: Deployment, logging, and end-to-end verification
 
-Goal: Deploy the MCP App to Vercel and verify that ChatGPT/Claude can call the server, list/read the widget resource, and open the widget when the browse tool is invoked.
+Goal: Deploy the MCP App to Vercel and verify that ChatGPT/Claude can call the server, list/read the widget resource, and open the widget when the test tool is invoked.
 
 Requirements:
 
@@ -138,6 +138,6 @@ Requirements:
   - Ensure the **build** runs the full widget build (e.g. `pnpm run build` or `vercel-build`) so `assets/mcp-app.html` is the **real single-file bundle**, not a stub.
   - Use **`includeFiles: "assets/**"`** (or equivalent) for the serverless function (resources/read) so the deployed handler can read `assets/mcp-app.html` from disk (e.g. `process.cwd()/assets/mcp-app.html`).
 - **Logging**: Log incoming JSON-RPC (method, id, params keys) and outgoing responses (result vs error, byte length). Log resource read success and file size (expect hundreds of KB for the real bundle).
-- **End-to-end**: A Jest test that calls  `/mcp` with `initialize`, `tools/list`, `resources/list`, `resources/read`, and `tools/call` for the browse tool; assert response shapes and that the widget HTML is the single-file bundle (large size, inlined script), not a stub.
+- **End-to-end**: A Jest test that calls  `/mcp` with `initialize`, `tools/list`, `resources/list`, `resources/read`, and `tools/call` for the test tool; assert response shapes and that the widget HTML is the single-file bundle (large size, inlined script), not a stub.
 - **Make it easy to develop Widget React component locally with pnpm dev**
 - **Work with user to verify local development and step-by-step Vercel deployment from github** Test with ChatGPT developer mode, test tool should return some test output.
