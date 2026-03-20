@@ -28,7 +28,7 @@ This file defines the **ChatVault-specific MCP App behavior** starting from Prom
 prompt7 - wire MCP App server for Chat Vault
  Define ChatVault MCP App inputs and wiring for `browseMySavedChats`
 
-This is the MCP App server we want to build: actions: saveChat, loadChats, searchChat and browseSavedChats.
+This is the MCP App server we want to build: actions: saveChat, loadChats, searchChat and browseMySavedChats.
 
 A Chat is { title, timestamp, turns[{ prompt, response }] }.
 browseSavedChats returns the MCP App widget we are creating in this project.
