@@ -31,7 +31,7 @@ Instruct the user to set up a PostgreSQL database in Neon for development and pr
 
 Prompt2: Initialize Node.js Project with Drizzle + MCP SDK
 
-Create a new Node.js project for the backend MCP server. Set it up as a sibling to any existing frontend/widget projects (for example, if you have `chat-vault-part1`, create `chat-vault-part2` in the same parent directory). Initialize it with TypeScript, Drizzle ORM, and the Apps SDK. Install the necessary dependencies for PostgreSQL, pgvector support, and environment variable management.
+Create a new Node.js project for the backend MCP server. Set it up as a sibling to any existing frontend/widget projects (for example, if you have `chatvault-part1`, create `chatvault-part2` in the same parent directory). Initialize it with TypeScript, Drizzle ORM, and the Apps SDK. Install the necessary dependencies for PostgreSQL, pgvector support, and environment variable management.
 
 
 --
