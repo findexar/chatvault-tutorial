@@ -23,23 +23,16 @@ project name - `${PROJECT_NAME}`
 
 ---
 
-Prompt0: Setup Neon PostgreSQL Database
+Prompt1: Setup Neon PostgreSQL Database
 
 Instruct the user to set up a PostgreSQL database in Neon for development and production. Create an account, create a project, and get the connection string. Enable the pgvector extension in the database so we can do vector similarity search later.
 
 ---
 
-Prompt1: Initialize Node.js Project with Drizzle + MCP SDK
+Prompt2: Initialize Node.js Project with Drizzle + MCP SDK
 
 Create a new Node.js project for the backend MCP server. Set it up as a sibling to any existing frontend/widget projects (for example, if you have `chat-vault-part1`, create `chat-vault-part2` in the same parent directory). Initialize it with TypeScript, Drizzle ORM, and the Apps SDK. Install the necessary dependencies for PostgreSQL, pgvector support, and environment variable management.
 
---
-
-Prompt2: Refactor to Monorepo Structure
-
-Refactor the project tree to have a single root repository with `chatvault-tutorial` as the root directory. Preserve the git history from `chat-vault-part1` when moving it into the monorepo structure. Add `${PROJECT_NAME}` to the repo. Detach repo from its current origin. Verify that all existing functionality still works—tests pass, builds succeed, and the MCP server starts correctly.
-
-- remove pre-commit configuration (if present)
 
 --
 
