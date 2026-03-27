@@ -29,16 +29,16 @@ Instruct the user to set up a PostgreSQL database in Neon for development and pr
 
 ---
 
-Prompt2: Initialize Node.js Project with Drizzle + MCP SDK
+Prompt2: Initialize Next.js /  Node.js Project with Drizzle + MCP SDK
 
-Create a new Node.js project for the backend MCP server. Set it up as a sibling to any existing frontend/widget projects (for example, if you have `chatvault-part1`, create `chatvault-part2` in the same parent directory). Initialize it with TypeScript, Drizzle ORM, and the Apps SDK. Install the necessary dependencies for PostgreSQL, pgvector support, and environment variable management.
+Create a new Node.js project for the backend MCP server. Use Next.js for mcp api routing. The server will be deployed to Vercel in production and run in a standalone Node in dev and test. Set it up as a sibling to any existing frontend/widget projects (for example, if you have `chatvault-part1`, create `chatvault-part2` in the same parent directory). Initialize it with TypeScript, Drizzle ORM, and the Apps SDK. Install the necessary dependencies for PostgreSQL, pgvector support, and environment variable management. Create vercel deployment with /mcp endpoint.
 
 
 --
 
 Prompt3: Create Basic MCP HTTP Streaming Server
 
-Build a minimal MCP server with HTTP streaming transport. Create an HTTP server that handles `POST /mcp` for MCP requests and `OPTIONS /mcp` for CORS preflight. Use the `@modelcontextprotocol/sdk` Server instance internally.
+Build a minimal MCP server with HTTP streaming transport. Create an HTTP server (api/mcp) that handles `POST /mcp` for MCP requests and `OPTIONS /mcp` for CORS preflight. Use the `@modelcontextprotocol/sdk` Server instance internally.
 
 **Non-negotiables:**
 
