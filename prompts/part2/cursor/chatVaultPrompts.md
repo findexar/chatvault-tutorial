@@ -1,25 +1,24 @@
 Title: ChatVault Backend – Apps SDK / MCP Vibe Engineering PROMPTS
 
-project name - chat-vault-part2
+project name - chatvault-part2
 
 This project uses the **generic backend MCP server prompts** defined in:
 
-- `prompts/part2/cursor/openai-AppsSDK-prompt.md`
+- `prompts/part2/cursor/common.md`
 
 Use that file for:
 
-- **Prompt0**: Setup Neon PostgreSQL Database
-- **Prompt1**: Initialize Node.js Project with Drizzle + Apps SDK
-- **Prompt2**: Refactor to Monorepo Structure
-- **Prompt3**: Create Basic MCP HTTP Streaming Server
-- **Prompt4**: Install Dependencies + Initialize Drizzle
+- **Prompt1**: Setup Neon PostgreSQL Database
+- **Prompt2**: Initialize Node.js Project with Drizzle + Apps SDK, deploy
+- **Prompt3**: Install Dependencies + Initialize Drizzle
+- **Prompt4**: Create Basic MCP HTTP Streaming Server
 - **Prompt5**: Setup Generic Test Framework
 
 This file defines the **ChatVault-specific backend behavior** starting from Prompt6.
 
 ## Engineering Principles (ChatVault-specific)
 
-- **Align with the generic prompts**: All work here inherits the engineering principles from `openai-AppsSDK-prompt.md` (verify, test with real databases, graceful degradation, separate concerns). Do not introduce project-specific shortcuts that violate those principles.
+- **Align with the generic prompts**: All work here inherits the engineering principles from `common.md` (verify, test with real databases, graceful degradation, separate concerns). Do not introduce project-specific shortcuts that violate those principles.
 - **Maintain Part 1 compatibility**: The Part 1 widget calls the MCP tool **`loadMyChats`** (not `loadChats`). Its `structuredContent` must match Part 1: **`{ chats: [...], nextCursor: string | null }`**, with **cursor-based** pagination (pass `cursor` from the previous response to fetch the next page). Part 1’s reference server does **not** attach `_meta` to `loadMyChats` results; **`_meta` with `chatVault` / UI hints** applies to **`browseMySavedChats`**, not to listing chats. Part 2 may include extra fields on each chat (e.g. `id`) as a superset of the Part 1 shape.
 - **Design for observability**: All database operations should be logged (queries, results, errors). Use structured logging where possible to make debugging easier.
 - **Vector search quality**: When implementing vector search, test with various query types (short, long, technical terms, natural language) to ensure embeddings capture semantic meaning correctly.
