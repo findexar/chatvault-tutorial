@@ -2,11 +2,11 @@ Title: Generic Backend MCP Server with Database PROMPTS
 
 Prerequisites:
 
-- git
-- ngrok
-- Node.js 18+
-- PostgreSQL (local for testing, Neon for production)
-- Cursor (these prompts are tuned for running inside the Cursor editor)
+- git (free)
+- ngrok (optional for tutorial, recommended for development, free account)
+- Node LTS (free)
+- Neon PostgreSQL free account
+- Cursor (these prompts are tuned for running inside the Cursor IDE) (free?)
 - ChatGPT Plus membership. OpenAI API Key (to use with embeddings API)
 
 This document defines **generic prompts** for building a backend MCP server with database integration (PostgreSQL + pgvector).  
