@@ -9,7 +9,7 @@ This project uses the **generic backend MCP server prompts** defined in:
 Use that file for:
 
 - **Prompt1**: Setup Neon PostgreSQL Database
-- **Prompt2**: Initialize Node.js Project with Drizzle + Apps SDK, deploy
+- **Prompt2**: Initialize Node.js Project with Drizzle + Apps SDK
 - **Prompt3**: Install Dependencies + Initialize Drizzle
 - **Prompt4**: Create Basic MCP HTTP Streaming Server
 - **Prompt5**: Setup Generic Test Framework
@@ -19,7 +19,7 @@ This file defines the **ChatVault-specific backend behavior** starting from Prom
 ## Engineering Principles (ChatVault-specific)
 
 - **Align with the generic prompts**: All work here inherits the engineering principles from `common.md` (verify, test with real databases, graceful degradation, separate concerns). Do not introduce project-specific shortcuts that violate those principles.
-- **Maintain Part 1 compatibility**: The Part 1 widget calls the MCP tool **`loadMyChats`** (not `loadChats`). Its `structuredContent` must match Part 1: **`{ chats: [...], nextCursor: string | null }`**, with **cursor-based** pagination (pass `cursor` from the previous response to fetch the next page). Part 1’s reference server does **not** attach `_meta` to `loadMyChats` results; **`_meta` with `chatVault` / UI hints** applies to **`browseMySavedChats`**, not to listing chats. Part 2 may include extra fields on each chat (e.g. `id`) as a superset of the Part 1 shape.
+- **Maintain Part 1 compatibility**: The `loadChats` tool must return data in the same format as Part 1: `{ chats: [...], pagination: {...} }` with `_meta` structure. This ensures the widget from Part 1 can work with the Part 2 backend without changes.
 - **Design for observability**: All database operations should be logged (queries, results, errors). Use structured logging where possible to make debugging easier.
 - **Vector search quality**: When implementing vector search, test with various query types (short, long, technical terms, natural language) to ensure embeddings capture semantic meaning correctly.
 
@@ -40,18 +40,18 @@ Define the Chat schema in Drizzle with fields for id, userId, title, timestamp, 
 
 Prompt7: Implement `loadMyChats` Tool
 
-Implement the **`loadMyChats`** MCP tool (same name as Part 1) that retrieves paginated chat data from PostgreSQL. Parameters: **`userId`** (required), **`cursor`** (optional, opaque string from the previous page’s `nextCursor`), **`limit`** (optional, default 10, cap as appropriate). Query chats for that `userId`, ordered by **timestamp descending** (then stable tie-break, e.g. `id` descending). Use **keyset (cursor) pagination**: return up to `limit` rows and, if more exist, a non-null **`nextCursor`** for the next request; otherwise `nextCursor: null`. Return **`structuredContent: { chats, nextCursor }`** plus human-readable `content`, matching Part 1’s reference server. Handle **empty results** (`chats: []`, `nextCursor: null`) and **invalid cursor** errors without crashing the server.
+Implement the `loadChats` MCP tool that retrieves paginated chat data from PostgreSQL. It should take userId (required), page (optional, default 1), and limit (optional, default 10) as parameters. Query the database for chats matching the userId, ordered by timestamp descending. Return the response in the exact same format as Part 1: `{ chats: [...], pagination: {...} }` wrapped in `_meta` structure. Handle pagination correctly (1-indexed pages) and edge cases like empty results.
 
 **Non-negotiables:**
 
-- Tool name and `structuredContent` shape must match Part 1: **`loadMyChats`** and **`{ chats, nextCursor }`** (same field names Part 1 uses)
-- Do **not** require `_meta` on the load tool result for Part 1 parity (browse/bootstrap is separate)
+- Response format must exactly match Part 1 format (same structure, same field names)
+- `_meta` structure must be used (ChatGPT transforms this to `meta` in widgets)
 
 ---
 
 Prompt8: Implement `searchMyChats` Tool (Vector Search)
 
-Implement the **`searchMyChats`** MCP tool (Part 2 name; aligns with `loadMyChats`) that performs vector similarity search on chat embeddings. Create a vector search query function that uses pgvector’s cosine similarity operator to find chats matching a query embedding. Parameters: **`userId`** (required), **`query`** (required), **`limit`** (optional, default 10). Generate an embedding for the search query, run similarity search scoped to that user, return results **ordered by similarity (most similar first)**. Format the response similarly to **`loadMyChats`** (e.g. a `chats` array) but include **search-specific metadata** (e.g. similarity scores). Handle chats without embeddings by **excluding** them from results (not an error).
+Implement the `searchMyChats` MCP tool that performs vector similarity search on chat embeddings. Create a vector search query function that uses pgvector's cosine similarity operator to find chats matching a query embedding. The tool should take userId (required), query (required), and limit (optional, default 10) as parameters. Generate an embedding for the search query, perform the vector similarity search, and return results ordered by similarity (most similar first). Format the response similar to `loadMyChats` but include search-specific metadata. Handle cases where chats don't have embeddings gracefully.
 
 **Non-negotiables:**
 
@@ -66,7 +66,7 @@ Implement the **`searchMyChats`** MCP tool (Part 2 name; aligns with `loadMyChat
 
 Prompt9: Update Tests for ChatVault Actions
 
-Add comprehensive end-to-end tests for **`saveChat`**, **`loadMyChats`**, and **`searchMyChats`** using a real test database. Cover success paths, missing/invalid arguments, and edge cases (empty lists, **cursor pagination**). Include integration flows (**save → load → search**). Helpers for DB setup/teardown and **`tools/list`** assertions should include these three tool names.
+Add comprehensive end-to-end tests for `saveChat`, `loadChats`, and `searchChats` tools using a real test database. Write tests for each tool covering success cases, error cases (missing parameters, invalid data), and edge cases. Create integration tests that test the full workflow (save → load → search). Add test data helpers for creating and cleaning up test chats. Update existing protocol tests to verify all three tools are present in `tools/list`.
 
 **Non-negotiables:**
 
@@ -81,7 +81,7 @@ Add comprehensive end-to-end tests for **`saveChat`**, **`loadMyChats`**, and **
 
 Prompt10: ChatGPT Integration and Testing
 
-Start the backend server, set up an ngrok tunnel, and configure ChatGPT to connect to the MCP server. Ensure production DB is up-to-date with migrations. Test all three tools (`saveChat`, `loadMyChats`, `searchMyChats`) from ChatGPT with various prompts. Verify error handling works correctly and that responses are clear and actionable. Optionally test integration with the Part 1 widget if available. Document the integration steps for future reference.
+Start the backend server, set up an ngrok tunnel, and configure ChatGPT to connect to the MCP server. Ensure production DB is up-to-date with migrations. Test all three tools (`saveChat`, `loadChats`, `searchChats`) from ChatGPT with various prompts. Verify error handling works correctly and that responses are clear and actionable. Optionally test integration with the Part 1 widget if available. Document the integration steps for future reference.
 
 **Non-negotiables:**
 
@@ -96,6 +96,6 @@ Start the backend server, set up an ngrok tunnel, and configure ChatGPT to conne
 
 After completing Prompt10, the ChatVault backend is complete and ready for:
 
-- Integration with Part 1 widget (if desired)
-- Production deployment (Part 4)
+- Integration with Part 1 widget (Part 3)
 - SaaS layer integration (Part 3)
+- Production deployment (Part 4)
